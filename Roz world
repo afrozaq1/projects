@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Roz World Mobile</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 0 auto; }
+        button { padding: 15px; margin: 5px; font-size: 18px; }
+        #game { border: 2px solid #4a2c82; padding: 20px; border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h1>🌿 Roz World Mobile 🌿</h1>
+        <div id="story">You wake up in a magical forest...</div>
+        <div id="options"></div>
+        <div id="stats">HP: 100 | EXP: 0</div>
+    </div>
+
+    <script>
+        const player = {
+            hp: 100,
+            exp: 0,
+            skills: []
+        };
+
+        function updateScreen() {
+            document.getElementById("stats").innerHTML = 
+                `HP: ${player.hp} | EXP: ${player.exp} | Skills: ${player.skills.join(", ")}`;
+        }
+
+        function showOptions(options) {
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            options.forEach((opt, i) => {
+                const btn = document.createElement("button");
+                btn.textContent = opt.text;
+                btn.onclick = opt.action;
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        // Starting scene
+        function startGame() {
+            document.getElementById("story").textContent = "You wake up in a magical forest...";
+            showOptions([
+                { text: "Take the staff", action: () => getStaff() },
+                { text: "Pet the cat", action: () => getCat() },
+                { text: "Explore lake", action: () => exploreLake() }
+            ]);
+            updateScreen();
+        }
+
+        function getStaff() {
+            player.skills.push("Fireball");
+            document.getElementById("story").textContent = "You gained the FIRE STAFF! (Unlocked Fireball)";
+            startCombat();
+        }
+
+        function startCombat() {
+            let enemyHp = 30;
+            document.getElementById("story").textContent = "A wild wolf attacks! (HP: 30)";
+            
+            showOptions([
+                { text: "Cast Fireball", action: () => {
+                    enemyHp -= 15;
+                    document.getElementById("story").textContent = `Fireball hits! Wolf HP: ${Math.max(0, enemyHp)}`;
+                    if(enemyHp <= 0) winCombat();
+                    else wolfAttack();
+                }},
+                { text: "Dodge", action: () => {
+                    if(Math.random() > 0.5) {
+                        document.getElementById("story").textContent = "Dodged successfully!";
+                    } else {
+                        player.hp -= 10;
+                        document.getElementById("story").textContent = `Wolf bit you! HP: ${player.hp}`;
+                        if(player.hp <= 0) gameOver();
+                    }
+                    updateScreen();
+                }}
+            ]);
+        }
+
+        function winCombat() {
+            player.exp += 10;
+            document.getElementById("story").textContent = "Wolf defeated! +10 EXP";
+            updateScreen();
+        }
+
+        function gameOver() {
+            document.getElementById("story").textContent = "Game Over! Refresh to restart.";
+            document.getElementById("options").innerHTML = "";
+        }
+
+        function getCat() {
+            document.getElementById("story").textContent = "The cat purrs and follows you!";
+            player.skills.push("Cat Companion");
+            updateScreen();
+        }
+
+        function exploreLake() {
+            document.getElementById("story").textContent = "You found a WATER AMULET!";
+            player.skills.push("Water Magic");
+            updateScreen();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
